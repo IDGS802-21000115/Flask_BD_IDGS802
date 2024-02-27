@@ -6,6 +6,7 @@ from flask import g
 from flask import flash
 from config import DevelopmentConfig
 from models import db
+from models import Alumnos
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -19,9 +20,22 @@ def page_not_found(e):
     return render_template('404.html'),404
 
 
-@app.route("/")
+@app.route("/index",methods=["GET", "POST"])
 def index():
-    return render_template("index.html")
+    alum_form=forms.UserForm2(request.form)
+    if request.method == "POST" and alum_form.validate():
+        alum=Alumnos(nombre=alum_form.nombre.data,
+                 apaterno=alum_form.apaterno.data,
+                 email=alum_form.email.data)
+        db.session.add(alum)
+        db.session.commit()
+    return render_template("index.html", form=alum_form)
+
+@app.route("/ABC_Complemento", methods=["GET", "POST"])
+def ABCompleto():
+    alum_form=forms.UserForm2(request.form)
+    alumno=Alumnos.query.all()
+    return render_template("ABC_Completo.html", alumno=alumno)
 
 @app.route("/alumnos", methods=["GET", "POST"])
 def alumnos():
